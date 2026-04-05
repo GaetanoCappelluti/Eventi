@@ -28,7 +28,7 @@ const App = () => {
       <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
         <header className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
           <p className="text-sm uppercase tracking-[0.2em] text-brand-500">EventoEuropa · Nexyron</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Scopri eventi europei in modo guidato, non rigido.</h1>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Scopri eventi europei in modo guidato.</h1>
           <p className="mt-3 max-w-3xl text-slate-300">
             Parti senza filtri obbligatori, osserva KPI e distribuzioni iniziali, poi restringi per area, categoria e tempo fino a trovare l'evento giusto.
           </p>
