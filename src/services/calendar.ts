@@ -8,9 +8,9 @@ const toUtcTimestamp = (isoDate: string) => {
 };
 
 export const buildIcsFile = (event: EventItem) => {
-  const start = toUtcTimestamp(event.startDate);
-  const end = toUtcTimestamp(event.endDate ?? event.startDate);
-  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//EventoEuropa//IT\nBEGIN:VEVENT\nUID:${event.id}@eventoeuropa\nDTSTAMP:${toUtcTimestamp(event.startDate)}\nDTSTART:${start}\nDTEND:${end}\nSUMMARY:${escapeIcs(event.title)}\nDESCRIPTION:${escapeIcs(event.description)}\nLOCATION:${escapeIcs(`${event.city}, ${event.region}, ${event.country}`)}\nEND:VEVENT\nEND:VCALENDAR`;
+  const start = toUtcTimestamp(event.date);
+  const end = toUtcTimestamp(event.endDate ?? event.date);
+  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//EventoEuropa//IT\nBEGIN:VEVENT\nUID:${event.id}@eventoeuropa\nDTSTAMP:${toUtcTimestamp(event.date)}\nDTSTART:${start}\nDTEND:${end}\nSUMMARY:${escapeIcs(event.name)}\nDESCRIPTION:${escapeIcs(event.description)}\nLOCATION:${escapeIcs(`${event.location}, ${event.region}, ${event.country}`)}\nEND:VEVENT\nEND:VCALENDAR`;
 };
 
 export const downloadEventIcs = (event: EventItem) => {
@@ -19,11 +19,9 @@ export const downloadEventIcs = (event: EventItem) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${event.title.toLowerCase().replace(/\s+/g, '-')}.ics`;
+  link.download = `${event.name.toLowerCase().replace(/\s+/g, '-')}.ics`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
-
-// TODO: Integrazione futura provider account-based (Google/Outlook) via OAuth e API dedicate.
