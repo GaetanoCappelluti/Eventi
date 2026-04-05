@@ -1,6 +1,4 @@
 import type { ChangeEvent } from 'react';
-import { MOCK_EVENTS } from '../data/events';
-import { REGIONS } from '../data/regions';
 import { CATEGORIES } from '../data/sectors';
 import type { EventFilters, QuickRange } from '../services/events';
 import { quickRangeLabel } from '../utils/dates';
@@ -10,11 +8,11 @@ type FiltersPanelProps = {
   onChange: (next: EventFilters) => void;
   onSearch: () => void;
   loading: boolean;
+  countries: string[];
+  regions: string[];
 };
 
-const COUNTRIES = [...new Set(MOCK_EVENTS.map((event) => event.country))].sort((a, b) => a.localeCompare(b));
-
-export const FiltersPanel = ({ filters, onChange, onSearch, loading }: FiltersPanelProps) => {
+export const FiltersPanel = ({ filters, onChange, onSearch, loading, countries, regions }: FiltersPanelProps) => {
   const update = (key: keyof EventFilters) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const value = event.target.value;
     onChange({ ...filters, [key]: value || undefined });
@@ -44,14 +42,14 @@ export const FiltersPanel = ({ filters, onChange, onSearch, loading }: FiltersPa
 
         <label className="text-sm text-slate-300">
           Ricerca libera
-          <input type="text" placeholder="es. AI, startup, turismo" value={filters.query ?? ''} onChange={update('query')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2" />
+          <input type="text" placeholder="es. sagra, mercatino, hi-fi car" value={filters.query ?? ''} onChange={update('query')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2" />
         </label>
 
         <label className="text-sm text-slate-300">
           Paese
           <select value={filters.country ?? ''} onChange={update('country')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
             <option value="">Tutti</option>
-            {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
+            {countries.map((country) => <option key={country} value={country}>{country}</option>)}
           </select>
         </label>
 
@@ -59,13 +57,13 @@ export const FiltersPanel = ({ filters, onChange, onSearch, loading }: FiltersPa
           Regione
           <select value={filters.region ?? ''} onChange={update('region')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
             <option value="">Tutte</option>
-            {REGIONS.map((region) => <option key={region} value={region}>{region}</option>)}
+            {regions.map((region) => <option key={region} value={region}>{region}</option>)}
           </select>
         </label>
 
         <label className="text-sm text-slate-300">
-          Categoria
-          <select value={filters.category ?? ''} onChange={update('category')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
+          Macro-categoria
+          <select value={filters.macroCategory ?? ''} onChange={update('macroCategory')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
             <option value="">Tutte</option>
             {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
           </select>
