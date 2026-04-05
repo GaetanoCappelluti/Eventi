@@ -1,8 +1,9 @@
 import type { ChangeEvent } from 'react';
+import { MOCK_EVENTS } from '../data/events';
 import { REGIONS } from '../data/regions';
-import { CATEGORIES, MACRO_AREAS } from '../data/sectors';
-import { quickRangeLabel } from '../utils/dates';
+import { CATEGORIES } from '../data/sectors';
 import type { EventFilters, QuickRange } from '../services/events';
+import { quickRangeLabel } from '../utils/dates';
 
 type FiltersPanelProps = {
   filters: EventFilters;
@@ -10,6 +11,8 @@ type FiltersPanelProps = {
   onSearch: () => void;
   loading: boolean;
 };
+
+const COUNTRIES = [...new Set(MOCK_EVENTS.map((event) => event.country))].sort((a, b) => a.localeCompare(b));
 
 export const FiltersPanel = ({ filters, onChange, onSearch, loading }: FiltersPanelProps) => {
   const update = (key: keyof EventFilters) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -45,10 +48,10 @@ export const FiltersPanel = ({ filters, onChange, onSearch, loading }: FiltersPa
         </label>
 
         <label className="text-sm text-slate-300">
-          Macro-area
-          <select value={filters.macroArea ?? ''} onChange={update('macroArea')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
-            <option value="">Tutte</option>
-            {MACRO_AREAS.map((area) => <option key={area} value={area}>{area}</option>)}
+          Paese
+          <select value={filters.country ?? ''} onChange={update('country')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
+            <option value="">Tutti</option>
+            {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
           </select>
         </label>
 

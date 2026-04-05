@@ -17,10 +17,10 @@ export const KpiDashboard = ({ kpis, filters, onFilterChange }: KpiDashboardProp
 
     <div className="grid gap-3 lg:grid-cols-3">
       <div className="card-surface p-4">
-        <h3 className="section-title">Macro-aree</h3>
+        <h3 className="section-title">Paesi più presenti</h3>
         <div className="mt-3 flex flex-wrap gap-2">
           {kpis.macroAreas.map((item) => (
-            <button key={item.key} onClick={() => onFilterChange({ macroArea: filters.macroArea === item.key ? undefined : item.key })} className="rounded-full border border-slate-600 px-3 py-1 text-sm hover:border-brand-500/60">
+            <button key={item.key} onClick={() => onFilterChange({ country: filters.country === item.key ? undefined : item.key })} className="rounded-full border border-slate-600 px-3 py-1 text-sm hover:border-brand-500/60">
               {item.key} · {item.count}
             </button>
           ))}

@@ -9,7 +9,7 @@ import {
   type EventItem,
 } from '../services/events';
 
-const initialFilters: EventFilters = { quickRange: 'next_30' };
+const initialFilters: EventFilters = { quickRange: 'none' };
 
 export const useEventSearch = () => {
   const [filters, setFilters] = useState<EventFilters>(initialFilters);

@@ -16,7 +16,7 @@ const App = () => {
   const [calendarEvent, setCalendarEvent] = useState<EventItem | undefined>();
 
   useEffect(() => {
-    void runSearch({ quickRange: 'next_30' });
+    void runSearch();
   }, []);
 
   const applyProgressiveFilter = async (patch: Partial<typeof filters>) => {
@@ -71,11 +71,17 @@ const App = () => {
                 <span className="text-sm text-slate-400">{pluralize(events.length, 'evento', 'eventi')}</span>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {events.map((event) => (
-                  <EventCard key={event.id} event={event} onDetails={setSelectedEvent} onAddToCalendar={setCalendarEvent} />
-                ))}
-              </div>
+              {events.length > 0 ? (
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {events.map((event) => (
+                    <EventCard key={event.id} event={event} onDetails={setSelectedEvent} onAddToCalendar={setCalendarEvent} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-6 text-sm text-slate-300">
+                  Nessun evento trovato con i filtri correnti. Prova a rimuovere alcuni filtri o a cambiare intervallo data.
+                </div>
+              )}
             </section>
           </section>
         ) : null}

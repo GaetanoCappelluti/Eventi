@@ -1,4 +1,4 @@
-import type { EventItem } from '../services/events';
+import { getEventOfficialUrl, type EventItem } from '../services/events';
 import { formatDate } from '../utils/dates';
 
 type EventDetailModalProps = {
@@ -10,18 +10,20 @@ type EventDetailModalProps = {
 export const EventDetailModal = ({ event, onClose, onAddToCalendar }: EventDetailModalProps) => {
   if (!event) return null;
 
+  const officialUrl = getEventOfficialUrl(event);
+
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-slate-950/80 p-4">
       <div className="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6">
         <div className="flex items-start justify-between">
-          <h2 className="text-2xl font-semibold text-white">{event.title}</h2>
+          <h2 className="text-2xl font-semibold text-white">{event.emoji} {event.name}</h2>
           <button type="button" onClick={onClose} className="text-slate-400 hover:text-white">✕</button>
         </div>
 
         <div className="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
-          <p><strong>Data:</strong> {formatDate(event.startDate)}{event.endDate ? ` → ${formatDate(event.endDate)}` : ''}</p>
-          <p><strong>Luogo:</strong> {event.city}, {event.region}, {event.country}</p>
-          <p><strong>Categoria:</strong> {event.category}</p>
+          <p><strong>Data:</strong> {formatDate(event.date)}{event.endDate ? ` → ${formatDate(event.endDate)}` : ''}</p>
+          <p><strong>Luogo:</strong> {event.location}, {event.region}, {event.country}</p>
+          <p><strong>Categoria:</strong> {event.sector}</p>
           <p><strong>Prezzo:</strong> {event.price}</p>
         </div>
 
@@ -31,12 +33,24 @@ export const EventDetailModal = ({ event, onClose, onAddToCalendar }: EventDetai
           {event.tags.map((tag) => <span key={tag} className="rounded-full border border-slate-700 px-2 py-0.5 text-xs text-slate-300">#{tag}</span>)}
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          {event.url ? (
-            <a href={event.url} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-600 px-3 py-2 text-sm hover:border-brand-500/60">
-              Vai al sito evento
+        <section className="mt-6 rounded-xl border border-brand-500/40 bg-brand-950/20 p-4">
+          <p className="text-sm font-semibold text-brand-200">🌐 Sito ufficiale evento</p>
+          {officialUrl ? (
+            <a
+              href={officialUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-block text-base font-medium text-brand-300 underline underline-offset-4 hover:text-brand-200"
+            >
+              Visita sito ufficiale e prenotazioni
             </a>
-          ) : null}
+          ) : (
+            <p className="mt-2 text-sm text-amber-300">Link ufficiale non disponibile</p>
+          )}
+          <p className="mt-2 text-xs text-slate-300">Verifica qui informazioni aggiornate e prenotazioni.</p>
+        </section>
+
+        <div className="mt-6 flex flex-wrap gap-2">
           <button type="button" onClick={() => onAddToCalendar(event)} className="rounded-lg bg-brand-600 px-3 py-2 text-sm text-white hover:bg-brand-500">
             Aggiungi al calendario
           </button>
