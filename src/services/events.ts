@@ -13,7 +13,7 @@ export type EventFilters = {
   query?: string;
 };
 
-type ApiFilters = Omit<EventFilters, 'query'> & { q?: string };
+type ApiFilters = Omit<EventFilters, 'query'> & { q?: string; limit?: number; offset?: number };
 
 export type EventItem = {
   id: string;
@@ -52,6 +52,11 @@ export type EventKpis = {
   topThemes: { key: string; count: number }[];
 };
 
+export type EventSearchResult = {
+  total: number;
+  items: EventItem[];
+};
+
 const withQuickRange = (filters: EventFilters): EventFilters => {
   if (!filters.quickRange || filters.quickRange === 'none') return filters;
 
@@ -74,18 +79,16 @@ const withQuickRange = (filters: EventFilters): EventFilters => {
   return { ...filters, from: filters.from ?? start, to: filters.to ?? endOfMonth.toISOString().slice(0, 10) };
 };
 
-const toApiFilters = (filters: EventFilters): ApiFilters => {
+const toApiFilters = (filters: EventFilters, paging?: { limit?: number; offset?: number }): ApiFilters => {
   const computed = withQuickRange(filters);
   const { query, ...rest } = computed;
-  return { ...rest, q: query };
+  return { ...rest, q: query, ...paging };
 };
 
 export const getEventOfficialUrl = (event: EventItem) => event.officialUrl;
 
-export const searchEvents = async (filters: EventFilters): Promise<EventItem[]> => {
-  const result = await searchClient.search(toApiFilters(filters));
-  return result.items;
-};
+export const searchEvents = async (filters: EventFilters, paging?: { limit?: number; offset?: number }): Promise<EventSearchResult> =>
+  searchClient.search(toApiFilters(filters, paging));
 
 export const getEventKpis = async (filters: EventFilters): Promise<EventKpis> => searchClient.kpis(toApiFilters(filters));
 

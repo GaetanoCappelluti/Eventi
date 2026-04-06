@@ -11,7 +11,7 @@ import type { EventItem } from './services/events';
 import { pluralize } from './utils/formatters';
 
 const App = () => {
-  const { filters, setFilters, events, loading, hasSearched, runSearch, kpis, regionSummary, categorySummary, highlighted } = useEventSearch();
+  const { filters, setFilters, events, totalResults, loading, hasSearched, runSearch, loadMore, kpis, regionSummary, categorySummary, highlighted, hasMore } = useEventSearch();
   const [selectedEvent, setSelectedEvent] = useState<EventItem | undefined>();
   const [calendarEvent, setCalendarEvent] = useState<EventItem | undefined>();
 
@@ -70,15 +70,30 @@ const App = () => {
             <section>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="section-title">Lista eventi</h2>
-                <span className="text-sm text-slate-400">{pluralize(events.length, 'evento', 'eventi')}</span>
+                <span className="text-sm text-slate-400">{pluralize(totalResults, 'evento trovato', 'eventi trovati')} · {pluralize(events.length, 'mostrato', 'mostrati')}</span>
               </div>
 
               {events.length > 0 ? (
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {events.map((event) => (
-                    <EventCard key={event.id} event={event} onDetails={setSelectedEvent} onAddToCalendar={setCalendarEvent} />
-                  ))}
+                <>
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {events.map((event) => (
+                      <EventCard key={event.id} event={event} onDetails={setSelectedEvent} onAddToCalendar={setCalendarEvent} />
+                    ))}
+                  </div>
+
+              {events.length > 0 && hasMore ? (
+                <div className="mt-4 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => void loadMore()}
+                    disabled={loading}
+                    className="rounded-lg border border-brand-500/60 bg-brand-600/20 px-4 py-2 text-sm font-medium text-brand-100 transition hover:bg-brand-600/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {loading ? 'Caricamento...' : 'Carica altri eventi'}
+                  </button>
                 </div>
+              ) : null}
+                </>
               ) : (
                 <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-6 text-sm text-slate-300">
                   Nessun evento trovato con i filtri correnti. Prova a rimuovere alcuni filtri o a cambiare intervallo data.

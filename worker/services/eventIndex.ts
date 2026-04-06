@@ -67,11 +67,13 @@ class EventIndex {
   query(filters: SearchFilters): SearchResult {
     const filtered = applyFilters(this.events, filters);
     const ranked = rankEvents(filtered, filters);
-    const offset = filters.offset ?? 0;
-    const limit = Math.min(filters.limit ?? 50, 100);
+    const offset = Math.max(0, filters.offset ?? 0);
+    const hasLimit = typeof filters.limit === 'number' && Number.isFinite(filters.limit) && filters.limit > 0;
+    const items = hasLimit ? ranked.slice(offset, offset + Math.floor(filters.limit as number)) : ranked.slice(offset);
+
     return {
       total: ranked.length,
-      items: ranked.slice(offset, offset + limit),
+      items,
     };
   }
 
