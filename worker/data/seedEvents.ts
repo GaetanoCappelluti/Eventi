@@ -1,13 +1,64 @@
-import type { NormalizedEvent } from '../models/event';
-
-const now = new Date();
-const addDays = (days: number) => {
-  const d = new Date(now);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-};
+import type { EventCategory, EventMacroCategory, NormalizedEvent } from '../models/event';
 
 const stamp = new Date().toISOString();
+const year = 2026;
+
+const mkDate = (month: number, day: number) => `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+const monthCycle = [5, 6, 7, 8, 9, 10, 11, 12];
+const dayCycle = [3, 6, 9, 12, 15, 18, 21, 24, 27];
+
+const marketsThemes = ['mercatini', 'artigianato', 'territorio'];
+const fairsThemes = ['fiere', 'networking', 'distretti produttivi'];
+const foodThemes = ['enogastronomia', 'degustazioni', 'prodotti tipici'];
+const outdoorThemes = ['outdoor', 'natura', 'turismo attivo'];
+const hifiThemes = ['hi-fi', 'ascolto', 'audio high-end'];
+const carAudioThemes = ['car audio', 'raduni', 'sound quality'];
+const cultureThemes = ['cultura', 'patrimonio', 'mostre'];
+
+const macroPlan: { macroCategory: EventMacroCategory; category: EventCategory; themes: string[] }[] = [
+  { macroCategory: 'Sagre e Feste', category: 'Sagra', themes: foodThemes },
+  { macroCategory: 'Sagre e Feste', category: 'Festa patronale', themes: cultureThemes },
+  { macroCategory: 'Fiere e Mercati', category: 'Fiera campionaria', themes: fairsThemes },
+  { macroCategory: 'Fiere e Mercati', category: 'Mercatino artigianale', themes: marketsThemes },
+  { macroCategory: 'Fiere e Mercati', category: 'Mercatino natalizio', themes: marketsThemes },
+  { macroCategory: 'Festival Territoriali', category: 'Festival territoriale', themes: outdoorThemes },
+  { macroCategory: 'Enogastronomia', category: 'Festival food & wine', themes: foodThemes },
+  { macroCategory: 'Enogastronomia', category: 'Sagra enogastronomica', themes: foodThemes },
+  { macroCategory: 'Hi-Fi e Car Audio', category: 'Fiera hi-fi', themes: hifiThemes },
+  { macroCategory: 'Hi-Fi e Car Audio', category: 'Raduno hi-fi car', themes: carAudioThemes },
+  { macroCategory: 'Audio e Musica', category: 'Mostra mercato audio', themes: hifiThemes },
+  { macroCategory: 'Eventi Locali e Regionali', category: 'Evento locale', themes: outdoorThemes },
+];
+
+const locations = [
+  { countryCode: 'IT', country: 'Italia', region: 'Lombardia', locality: 'Milano', timezone: 'Europe/Rome' },
+  { countryCode: 'IT', country: 'Italia', region: 'Emilia-Romagna', locality: 'Bologna', timezone: 'Europe/Rome' },
+  { countryCode: 'IT', country: 'Italia', region: 'Toscana', locality: 'Firenze', timezone: 'Europe/Rome' },
+  { countryCode: 'IT', country: 'Italia', region: 'Puglia', locality: 'Bari', timezone: 'Europe/Rome' },
+  { countryCode: 'ES', country: 'Spagna', region: 'Catalogna', locality: 'Barcellona', timezone: 'Europe/Madrid' },
+  { countryCode: 'ES', country: 'Spagna', region: 'Comunità di Madrid', locality: 'Madrid', timezone: 'Europe/Madrid' },
+  { countryCode: 'FR', country: 'Francia', region: 'Île-de-France', locality: 'Parigi', timezone: 'Europe/Paris' },
+  { countryCode: 'FR', country: 'Francia', region: 'Auvergne-Rhône-Alpes', locality: 'Lione', timezone: 'Europe/Paris' },
+  { countryCode: 'DE', country: 'Germania', region: 'Baviera', locality: 'Monaco di Baviera', timezone: 'Europe/Berlin' },
+  { countryCode: 'DE', country: 'Germania', region: 'Berlino', locality: 'Berlino', timezone: 'Europe/Berlin' },
+  { countryCode: 'NL', country: 'Paesi Bassi', region: 'Noord-Holland', locality: 'Amsterdam', timezone: 'Europe/Amsterdam' },
+  { countryCode: 'NL', country: 'Paesi Bassi', region: 'Utrecht', locality: 'Utrecht', timezone: 'Europe/Amsterdam' },
+  { countryCode: 'BE', country: 'Belgio', region: 'Bruxelles-Capitale', locality: 'Bruxelles', timezone: 'Europe/Brussels' },
+  { countryCode: 'PT', country: 'Portogallo', region: 'Lisboa', locality: 'Lisbona', timezone: 'Europe/Lisbon' },
+  { countryCode: 'AT', country: 'Austria', region: 'Vienna', locality: 'Vienna', timezone: 'Europe/Vienna' },
+  { countryCode: 'CH', country: 'Svizzera', region: 'Zurigo', locality: 'Zurigo', timezone: 'Europe/Zurich' },
+  { countryCode: 'PL', country: 'Polonia', region: 'Masovia', locality: 'Varsavia', timezone: 'Europe/Warsaw' },
+  { countryCode: 'CZ', country: 'Repubblica Ceca', region: 'Praga', locality: 'Praga', timezone: 'Europe/Prague' },
+  { countryCode: 'HU', country: 'Ungheria', region: 'Budapest', locality: 'Budapest', timezone: 'Europe/Budapest' },
+  { countryCode: 'SE', country: 'Svezia', region: 'Stoccolma', locality: 'Stoccolma', timezone: 'Europe/Stockholm' },
+  { countryCode: 'DK', country: 'Danimarca', region: 'Hovedstaden', locality: 'Copenaghen', timezone: 'Europe/Copenhagen' },
+  { countryCode: 'IE', country: 'Irlanda', region: 'Leinster', locality: 'Dublino', timezone: 'Europe/Dublin' },
+  { countryCode: 'GR', country: 'Grecia', region: 'Attica', locality: 'Atene', timezone: 'Europe/Athens' },
+  { countryCode: 'HR', country: 'Croazia', region: 'Spalato-Dalmazia', locality: 'Spalato', timezone: 'Europe/Zagreb' },
+];
+
+const topicWords = ['sagre', 'fiere', 'mercatini', 'hi-fi', 'car audio', 'raduni', 'eventi territoriali', 'enogastronomia', 'cultura', 'outdoor'];
 
 const mk = (event: Omit<NormalizedEvent, 'createdAt' | 'updatedAt'>): NormalizedEvent => ({
   ...event,
@@ -15,17 +66,60 @@ const mk = (event: Omit<NormalizedEvent, 'createdAt' | 'updatedAt'>): Normalized
   updatedAt: stamp,
 });
 
-export const seedEvents: NormalizedEvent[] = [
-  mk({ id: 'it-sagra-chianti', slug: 'sagra-del-vino-chianti-greve', title: 'Sagra del Vino Chianti', description: 'Evento territoriale dedicato a vini DOCG, degustazioni e produttori locali.', macroCategory: 'Enogastronomia', category: 'Sagra enogastronomica', themes: ['vino', 'territorio', 'degustazioni'], tags: ['chianti', 'cantine', 'tradizione'], geo: { countryCode: 'IT', country: 'Italia', region: 'Toscana', locality: 'Greve in Chianti', venue: 'Centro Storico' }, dates: { startDate: addDays(7), endDate: addDays(9), timezone: 'Europe/Rome' }, officialUrl: 'https://www.sagradelvinochianti.it', bookingUrl: 'https://tickets.sagradelvinochianti.it', ticketPrice: '€12', confidenceScore: 0.92, rankingScore: 0.88, dedupeHash: 'it|greve|sagra-del-vino-chianti|'+addDays(7), sourceRefs: [{ sourceId: 'it-proloco-chianti', sourceName: 'Pro Loco Greve', sourceUrl: 'https://www.prolocogreve.it', sourceType: 'official', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.95 }] }),
-  mk({ id: 'it-fiera-parma-audio', slug: 'parma-hifi-expo', title: 'Parma Hi-Fi Expo', description: 'Fiera hi-fi con sale demo, brand audio high-end e workshop di ascolto.', macroCategory: 'Hi-Fi e Car Audio', category: 'Fiera hi-fi', themes: ['hi-fi', 'audio high-end', 'vinile'], tags: ['hifi', 'parma', 'showroom'], geo: { countryCode: 'IT', country: 'Italia', region: 'Emilia-Romagna', locality: 'Parma', venue: 'Fiere di Parma' }, dates: { startDate: addDays(20), endDate: addDays(21), timezone: 'Europe/Rome' }, officialUrl: 'https://www.parmahifiexpo.it', bookingUrl: 'https://tickets.parmahifiexpo.it', ticketPrice: '€18', confidenceScore: 0.9, rankingScore: 0.91, dedupeHash: 'it|parma|parma-hifi-expo|'+addDays(20), sourceRefs: [{ sourceId: 'it-fiere-parma', sourceName: 'Fiere di Parma', sourceUrl: 'https://www.fiereparma.it', sourceType: 'institutional', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.93 }] }),
-  mk({ id: 'de-markt-berlin', slug: 'berlin-flohmarkt-am-mauerpark', title: 'Flohmarkt am Mauerpark', description: 'Mercatino locale con artigianato, vintage e street food internazionale.', macroCategory: 'Fiere e Mercati', category: 'Mercatino artigianale', themes: ['mercatino', 'artigianato', 'street food'], tags: ['berlin', 'vintage', 'local'], geo: { countryCode: 'DE', country: 'Germania', region: 'Berlino', locality: 'Berlino', venue: 'Mauerpark' }, dates: { startDate: addDays(4), timezone: 'Europe/Berlin' }, officialUrl: 'https://www.mauerparkmarkt.de', confidenceScore: 0.87, rankingScore: 0.82, dedupeHash: 'de|berlin|flohmarkt-mauerpark|'+addDays(4), sourceRefs: [{ sourceId: 'de-mauerpark', sourceName: 'Mauerpark Markt', sourceUrl: 'https://www.mauerparkmarkt.de', sourceType: 'official', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.9 }] }),
-  mk({ id: 'es-festival-rioja', slug: 'rioja-food-wine-festival', title: 'Rioja Food & Wine Festival', description: 'Festival enogastronomico con chef regionali, bodegas e percorsi di degustazione.', macroCategory: 'Enogastronomia', category: 'Festival food & wine', themes: ['vino', 'food', 'territorio'], tags: ['rioja', 'bodegas', 'chef'], geo: { countryCode: 'ES', country: 'Spagna', region: 'La Rioja', locality: 'Logroño' }, dates: { startDate: addDays(12), endDate: addDays(14), timezone: 'Europe/Madrid' }, officialUrl: 'https://www.riojafoodwine.es', bookingUrl: 'https://entradas.riojafoodwine.es', confidenceScore: 0.89, rankingScore: 0.87, dedupeHash: 'es|logrono|rioja-food-wine-festival|'+addDays(12), sourceRefs: [{ sourceId: 'es-turismo-rioja', sourceName: 'Turismo La Rioja', sourceUrl: 'https://www.lariojaturismo.com', sourceType: 'institutional', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.91 }] }),
-  mk({ id: 'fr-marche-noel-colmar', slug: 'marche-de-noel-colmar', title: 'Marché de Noël Colmar', description: 'Mercatino natalizio regionale con artigianato locale e gastronomia alsaziana.', macroCategory: 'Fiere e Mercati', category: 'Mercatino natalizio', themes: ['natale', 'artigianato', 'famiglie'], tags: ['colmar', 'alsazia', 'christmas'], geo: { countryCode: 'FR', country: 'Francia', region: 'Grand Est', locality: 'Colmar' }, dates: { startDate: addDays(45), endDate: addDays(60), timezone: 'Europe/Paris' }, officialUrl: 'https://www.noel-colmar.com', confidenceScore: 0.94, rankingScore: 0.89, dedupeHash: 'fr|colmar|marche-noel-colmar|'+addDays(45), sourceRefs: [{ sourceId: 'fr-colmar-tourisme', sourceName: 'Office de Tourisme Colmar', sourceUrl: 'https://www.tourisme-colmar.com', sourceType: 'official', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.96 }] }),
-  mk({ id: 'nl-car-audio-utrecht', slug: 'utrecht-car-audio-meet', title: 'Utrecht Car Audio Meet', description: 'Raduno hi-fi car con demo impianti, SPL contest e installatori europei.', macroCategory: 'Hi-Fi e Car Audio', category: 'Raduno hi-fi car', themes: ['car audio', 'spl', 'custom install'], tags: ['utrecht', 'carhifi', 'meet'], geo: { countryCode: 'NL', country: 'Paesi Bassi', region: 'Utrecht', locality: 'Utrecht' }, dates: { startDate: addDays(26), timezone: 'Europe/Amsterdam' }, officialUrl: 'https://www.utrechtcaraudiomeet.nl', bookingUrl: 'https://tickets.utrechtcaraudiomeet.nl', confidenceScore: 0.86, rankingScore: 0.85, dedupeHash: 'nl|utrecht|utrecht-car-audio-meet|'+addDays(26), sourceRefs: [{ sourceId: 'nl-car-audio-community', sourceName: 'NL Car Audio Community', sourceUrl: 'https://www.nlcaraudio.nl', sourceType: 'community', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.83 }] }),
-  mk({ id: 'pt-festa-sardinha', slug: 'festa-da-sardinha-portimao', title: 'Festa da Sardinha Portimão', description: 'Festival territoriale sul lungomare con cucina locale, concerti e mercato artigianale.', macroCategory: 'Festival Territoriali', category: 'Festival territoriale', themes: ['mare', 'gastronomia', 'musica'], tags: ['portimao', 'algarve', 'tradizione'], geo: { countryCode: 'PT', country: 'Portogallo', region: 'Algarve', locality: 'Portimão' }, dates: { startDate: addDays(18), endDate: addDays(22), timezone: 'Europe/Lisbon' }, officialUrl: 'https://www.festadasardinha.pt', confidenceScore: 0.88, rankingScore: 0.86, dedupeHash: 'pt|portimao|festa-da-sardinha|'+addDays(18), sourceRefs: [{ sourceId: 'pt-municipio-portimao', sourceName: 'Município de Portimão', sourceUrl: 'https://www.cm-portimao.pt', sourceType: 'institutional', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.9 }] }),
-  mk({ id: 'at-klang-vienna', slug: 'vienna-audio-showcase', title: 'Vienna Audio Showcase', description: 'Evento audio con produttori europei, cuffie high-end e masterclass tecniche.', macroCategory: 'Audio e Musica', category: 'Mostra mercato audio', themes: ['audio', 'cuffie', 'studio'], tags: ['vienna', 'headfi', 'showcase'], geo: { countryCode: 'AT', country: 'Austria', region: 'Vienna', locality: 'Vienna' }, dates: { startDate: addDays(31), endDate: addDays(32), timezone: 'Europe/Vienna' }, officialUrl: 'https://www.viennaaudioshowcase.at', bookingUrl: 'https://tickets.viennaaudioshowcase.at', confidenceScore: 0.85, rankingScore: 0.83, dedupeHash: 'at|vienna|vienna-audio-showcase|'+addDays(31), sourceRefs: [{ sourceId: 'at-messe-vienna', sourceName: 'Messe Wien', sourceUrl: 'https://www.messecongress.at', sourceType: 'institutional', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.87 }] }),
-  mk({ id: 'be-foire-liege', slug: 'foire-de-liege', title: 'Foire de Liège', description: 'Fiera storica cittadina con aree food, espositori regionali e intrattenimento locale.', macroCategory: 'Fiere e Mercati', category: 'Fiera campionaria', themes: ['fiera', 'famiglia', 'territorio'], tags: ['liege', 'foire', 'regionale'], geo: { countryCode: 'BE', country: 'Belgio', region: 'Vallonia', locality: 'Liegi' }, dates: { startDate: addDays(16), endDate: addDays(24), timezone: 'Europe/Brussels' }, officialUrl: 'https://www.foiredeliege.be', confidenceScore: 0.91, rankingScore: 0.84, dedupeHash: 'be|liege|foire-de-liege|'+addDays(16), sourceRefs: [{ sourceId: 'be-foire-official', sourceName: 'Foire de Liège', sourceUrl: 'https://www.foiredeliege.be', sourceType: 'official', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.94 }] }),
-  mk({ id: 'pl-festival-pierogi', slug: 'krakow-pierogi-festival', title: 'Krakow Pierogi Festival', description: 'Evento enogastronomico regionale con produttori locali e showcooking.', macroCategory: 'Enogastronomia', category: 'Festival food & wine', themes: ['tradizione', 'street food', 'famiglie'], tags: ['krakow', 'pierogi', 'foodfest'], geo: { countryCode: 'PL', country: 'Polonia', region: 'Piccola Polonia', locality: 'Cracovia' }, dates: { startDate: addDays(38), endDate: addDays(40), timezone: 'Europe/Warsaw' }, officialUrl: 'https://www.pierogifest.krakow.pl', confidenceScore: 0.84, rankingScore: 0.8, dedupeHash: 'pl|krakow|pierogi-festival|'+addDays(38), sourceRefs: [{ sourceId: 'pl-krakow-events', sourceName: 'Krakow Events', sourceUrl: 'https://www.krakow.pl', sourceType: 'institutional', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.86 }] }),
-  mk({ id: 'it-festa-patronale-bari', slug: 'festa-san-nicola-bari', title: 'Festa di San Nicola', description: 'Festa patronale con processioni, stand tipici e programma culturale urbano.', macroCategory: 'Sagre e Feste', category: 'Festa patronale', themes: ['tradizione', 'patronale', 'comunità'], tags: ['bari', 'puglia', 'festa'], geo: { countryCode: 'IT', country: 'Italia', region: 'Puglia', locality: 'Bari' }, dates: { startDate: addDays(52), endDate: addDays(55), timezone: 'Europe/Rome' }, officialUrl: 'https://www.festasan.nicola.bari.it', confidenceScore: 0.9, rankingScore: 0.86, dedupeHash: 'it|bari|festa-san-nicola|'+addDays(52), sourceRefs: [{ sourceId: 'it-comune-bari', sourceName: 'Comune di Bari', sourceUrl: 'https://www.comune.bari.it', sourceType: 'institutional', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.92 }] }),
-  mk({ id: 'cz-brno-local-market', slug: 'brno-local-market-days', title: 'Brno Local Market Days', description: 'Evento locale periodico con produttori regionali, artigiani e musica dal vivo.', macroCategory: 'Eventi Locali e Regionali', category: 'Evento locale', themes: ['locale', 'artigianato', 'prodotti tipici'], tags: ['brno', 'market', 'regionale'], geo: { countryCode: 'CZ', country: 'Repubblica Ceca', region: 'Moravia Meridionale', locality: 'Brno' }, dates: { startDate: addDays(11), timezone: 'Europe/Prague' }, officialUrl: 'https://www.brnolocalmarket.cz', confidenceScore: 0.82, rankingScore: 0.79, dedupeHash: 'cz|brno|local-market-days|'+addDays(11), sourceRefs: [{ sourceId: 'cz-brno-municipal', sourceName: 'Brno Municipal Events', sourceUrl: 'https://www.brno.cz', sourceType: 'institutional', discoveredAt: stamp, extractor: 'manual-seed', sourceScore: 0.85 }] }),
-];
+const buildSeedEvents = (): NormalizedEvent[] =>
+  Array.from({ length: 360 }, (_, index) => {
+    const sequence = index + 1;
+    const loc = locations[index % locations.length];
+    const plan = macroPlan[index % macroPlan.length];
+    const month = monthCycle[index % monthCycle.length];
+    const day = dayCycle[index % dayCycle.length];
+    const endDay = Math.min(day + ((index % 3) + 1), 28);
+
+    const startDate = mkDate(month, day);
+    const endDate = mkDate(month, endDay);
+    const topic = topicWords[index % topicWords.length];
+
+    const slug = `${loc.countryCode.toLowerCase()}-${loc.locality.toLowerCase().replace(/\s+/g, '-')}-${plan.category.toLowerCase().replace(/\s+/g, '-')}-${sequence}`;
+
+    return mk({
+      id: `ev-${sequence}`,
+      slug,
+      title: `${plan.category} ${loc.locality} ${year} #${sequence}`,
+      description: `Evento ${plan.macroCategory.toLowerCase()} dedicato a ${topic}, reti territoriali e partecipazione locale in ${loc.locality}.`,
+      macroCategory: plan.macroCategory,
+      category: plan.category,
+      themes: [...plan.themes, topic],
+      tags: [topic, loc.locality.toLowerCase().replace(/\s+/g, '-'), plan.macroCategory.toLowerCase().replace(/\s+/g, '-')],
+      geo: {
+        countryCode: loc.countryCode,
+        country: loc.country,
+        region: loc.region,
+        locality: loc.locality,
+        venue: `Centro eventi ${loc.locality}`,
+      },
+      dates: {
+        startDate,
+        endDate,
+        timezone: loc.timezone,
+      },
+      officialUrl: `https://eventieuropa.example/${slug}`,
+      bookingUrl: `https://tickets.eventieuropa.example/${slug}`,
+      ticketPrice: index % 5 === 0 ? 'Gratis' : `€${10 + (index % 12) * 3}`,
+      confidenceScore: 0.82 + (index % 10) / 100,
+      rankingScore: 0.79 + (index % 12) / 100,
+      dedupeHash: `${loc.countryCode}|${loc.locality}|${slug}|${startDate}`,
+      sourceRefs: [
+        {
+          sourceId: `${loc.countryCode.toLowerCase()}-tourism-${index % 9}`,
+          sourceName: `${loc.locality} Turismo Eventi`,
+          sourceUrl: `https://sources.eventieuropa.example/${loc.countryCode.toLowerCase()}/${index % 9}`,
+          sourceType: index % 4 === 0 ? 'official' : 'institutional',
+          discoveredAt: stamp,
+          extractor: 'manual-seed',
+          sourceScore: 0.8 + (index % 10) / 100,
+        },
+      ],
+    });
+  });
+
+export const seedEvents: NormalizedEvent[] = buildSeedEvents();
