@@ -1,94 +1,87 @@
-import { seedEvents } from '../data/seedEvents';
-import type { EventKpis, NormalizedEvent, SearchFilters, SearchResult } from '../models/event';
+import { bootstrapEvents } from '../seeds/bootstrapEvents';
+import { sourceSeeds } from '../seeds/sources';
+import type { EventKpis, EventRecord, SearchFilters, SearchResponse } from '../types/event';
 import { dedupeEvents } from './dedupeEvents';
+import { scoreEvent } from './ranking';
 
-const countBy = (events: NormalizedEvent[], fn: (event: NormalizedEvent) => string) =>
+const toMillis = (date: string) => new Date(`${date}T00:00:00Z`).getTime();
+
+const countBy = (events: EventRecord[], pick: (event: EventRecord) => string) =>
   Object.entries(
     events.reduce<Record<string, number>>((acc, event) => {
-      const key = fn(event);
+      const key = pick(event);
       acc[key] = (acc[key] ?? 0) + 1;
       return acc;
     }, {}),
   )
     .map(([key, count]) => ({ key, count }))
-    .sort((a, b) => b.count - a.count);
+    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
 
-const scoreByQuery = (event: NormalizedEvent, q?: string) => {
-  if (!q) return 0;
-  const query = q.toLowerCase().trim();
-  if (!query) return 0;
-  const haystack = [event.title, event.description, event.category, event.macroCategory, ...event.themes, ...event.tags].join(' ').toLowerCase();
-  if (!haystack.includes(query)) return -0.5;
-  if (event.title.toLowerCase().includes(query)) return 0.25;
-  return 0.1;
-};
-
-const toMillis = (iso: string) => new Date(`${iso}T00:00:00Z`).getTime();
-
-const applyFilters = (events: NormalizedEvent[], filters: SearchFilters) =>
+const applyFilters = (events: EventRecord[], filters: SearchFilters) =>
   events.filter((event) => {
-    if (filters.country && event.geo.country !== filters.country) return false;
-    if (filters.region && event.geo.region !== filters.region) return false;
-    if (filters.macroCategory && event.macroCategory !== filters.macroCategory) return false;
+    if (filters.country && event.country !== filters.country) return false;
+    if (filters.region && event.region !== filters.region) return false;
     if (filters.category && event.category !== filters.category) return false;
-    if (filters.from && toMillis(event.dates.startDate) < toMillis(filters.from)) return false;
-    if (filters.to && toMillis(event.dates.startDate) > toMillis(filters.to)) return false;
-    if (filters.themes?.length) {
-      const lowerThemes = event.themes.map((theme) => theme.toLowerCase());
-      if (!filters.themes.some((theme) => lowerThemes.includes(theme.toLowerCase()))) return false;
-    }
+    if (filters.subcategory && event.subcategory !== filters.subcategory) return false;
+    if (filters.from && toMillis(event.startDate) < toMillis(filters.from)) return false;
+    if (filters.to && toMillis(event.startDate) > toMillis(filters.to)) return false;
     if (filters.q) {
-      const query = filters.q.toLowerCase();
-      const searchable = [event.title, event.description, event.category, event.macroCategory, ...event.themes, ...event.tags, event.geo.locality].join(' ').toLowerCase();
-      if (!searchable.includes(query)) return false;
+      const q = filters.q.toLowerCase();
+      const haystack = [event.title, event.description, event.category, event.subcategory, event.city, event.region, ...event.tags].join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
     }
     return true;
   });
 
-const rankEvents = (events: NormalizedEvent[], filters: SearchFilters) =>
-  [...events].sort((a, b) => {
-    const dateA = toMillis(a.dates.startDate);
-    const dateB = toMillis(b.dates.startDate);
-    const daysDistanceA = Math.abs(dateA - Date.now()) / (1000 * 60 * 60 * 24);
-    const daysDistanceB = Math.abs(dateB - Date.now()) / (1000 * 60 * 60 * 24);
-
-    const freshnessA = 1 / Math.max(1, daysDistanceA);
-    const freshnessB = 1 / Math.max(1, daysDistanceB);
-
-    const rankA = a.rankingScore * 0.5 + a.confidenceScore * 0.35 + freshnessA * 0.1 + scoreByQuery(a, filters.q) * 0.05;
-    const rankB = b.rankingScore * 0.5 + b.confidenceScore * 0.35 + freshnessB * 0.1 + scoreByQuery(b, filters.q) * 0.05;
-
-    return rankB - rankA;
-  });
-
 class EventIndex {
-  private events = dedupeEvents(seedEvents);
+  private events: EventRecord[];
 
-  query(filters: SearchFilters): SearchResult {
+  constructor() {
+    this.events = dedupeEvents(bootstrapEvents);
+  }
+
+  query(filters: SearchFilters): SearchResponse {
     const filtered = applyFilters(this.events, filters);
-    const ranked = rankEvents(filtered, filters);
-    const offset = filters.offset ?? 0;
-    const limit = Math.min(filters.limit ?? 50, 100);
-    return {
-      total: ranked.length,
-      items: ranked.slice(offset, offset + limit),
-    };
+    const ranked = [...filtered].sort((a, b) => {
+      const sourceA = sourceSeeds.find((item) => a.sourceDomain.includes(new URL(item.url).hostname));
+      const sourceB = sourceSeeds.find((item) => b.sourceDomain.includes(new URL(item.url).hostname));
+      return scoreEvent(b, sourceB) - scoreEvent(a, sourceA);
+    });
+
+    const offset = Math.max(0, filters.offset ?? 0);
+    const end = filters.limit ? offset + Math.max(1, filters.limit) : undefined;
+
+    return { total: ranked.length, items: ranked.slice(offset, end) };
+  }
+
+  byId(id: string) {
+    return this.events.find((event) => event.id === id);
   }
 
   kpis(filters: SearchFilters): EventKpis {
     const filtered = applyFilters(this.events, filters);
+    const sortedByDate = [...filtered].sort((a, b) => a.startDate.localeCompare(b.startDate));
+
     return {
       totalEvents: filtered.length,
-      byMacroCategory: countBy(filtered, (event) => event.macroCategory),
-      byCountry: countBy(filtered, (event) => event.geo.country),
-      byRegion: countBy(filtered, (event) => event.geo.region),
-      topLocations: countBy(filtered, (event) => `${event.geo.locality}, ${event.geo.country}`).slice(0, 10),
-      topThemes: countBy(filtered, (event) => event.themes[0] ?? 'altro').slice(0, 10),
+      topMacroCategories: countBy(filtered, (event) => event.category),
+      topSubcategories: countBy(filtered, (event) => event.subcategory),
+      topCountries: countBy(filtered, (event) => event.country),
+      topRegions: countBy(filtered, (event) => event.region),
+      topCities: countBy(filtered, (event) => event.city),
+      periodCovered: {
+        from: sortedByDate[0]?.startDate,
+        to: sortedByDate.at(-1)?.endDate ?? sortedByDate.at(-1)?.startDate,
+      },
     };
   }
 
-  stats() {
-    return { totalSeeded: this.events.length };
+  sources() {
+    return sourceSeeds;
+  }
+
+  health() {
+    return { status: 'ok', indexedEvents: this.events.length, sources: sourceSeeds.length, generatedAt: new Date().toISOString() };
   }
 }
 

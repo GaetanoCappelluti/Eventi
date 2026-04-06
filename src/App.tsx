@@ -28,10 +28,8 @@ const App = () => {
       <div className="mx-auto max-w-6xl px-4 py-8 md:px-6">
         <header className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
           <p className="text-sm uppercase tracking-[0.2em] text-brand-500">EventoEuropa · Nexyron</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Scopri eventi europei in modo guidato.</h1>
-          <p className="mt-3 max-w-3xl text-slate-300">
-            Parti senza filtri obbligatori, osserva KPI e distribuzioni iniziali, poi restringi per area, categoria e tempo fino a trovare l'evento giusto.
-          </p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Aggregatore europeo eventi territoriali.</h1>
+          <p className="mt-3 max-w-3xl text-slate-300">La UI usa solo API interne: ricerca libera, KPI globali e raffinamento progressivo senza filtri obbligatori.</p>
         </header>
 
         <FiltersPanel
@@ -39,28 +37,24 @@ const App = () => {
           onChange={setFilters}
           onSearch={() => void runSearch()}
           loading={loading}
-          countries={kpis.byCountry.map((item) => item.key)}
-          regions={kpis.byRegion.map((item) => item.key)}
+          countries={kpis.topCountries.map((item) => item.key)}
+          regions={kpis.topRegions.map((item) => item.key)}
         />
 
         {hasSearched ? (
           <section className="mt-8 space-y-6">
-            <KpiDashboard
-              kpis={kpis}
-              filters={filters}
-              onFilterChange={(patch) => void applyProgressiveFilter(patch)}
-            />
+            <KpiDashboard kpis={kpis} filters={filters} onFilterChange={(patch) => void applyProgressiveFilter(patch)} />
 
             <div className="grid gap-4 lg:grid-cols-2">
               <RegionSummary items={regionSummary} selected={filters.region} onSelect={(region) => void applyProgressiveFilter({ region: filters.region === region ? undefined : region })} />
-              <CategorySummary items={categorySummary} selected={filters.macroCategory} onSelect={(category) => void applyProgressiveFilter({ macroCategory: filters.macroCategory === category ? undefined : category })} />
+              <CategorySummary items={categorySummary} selected={filters.category} onSelect={(category) => void applyProgressiveFilter({ category: filters.category === category ? undefined : category })} />
             </div>
 
             {highlighted.length > 0 ? (
               <section>
-                <h2 className="section-title">Eventi in evidenza</h2>
+                <h2 className="section-title">Eventi in evidenza (ranking completo)</h2>
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  {highlighted.map((event) => (
+                  {highlighted.slice(0, 6).map((event) => (
                     <EventCard key={`highlight-${event.id}`} event={event} onDetails={setSelectedEvent} onAddToCalendar={setCalendarEvent} />
                   ))}
                 </div>
@@ -80,9 +74,7 @@ const App = () => {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-6 text-sm text-slate-300">
-                  Nessun evento trovato con i filtri correnti. Prova a rimuovere alcuni filtri o a cambiare intervallo data.
-                </div>
+                <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-6 text-sm text-slate-300">Nessun evento trovato con i filtri correnti. Prova a rimuovere alcuni filtri o a cambiare intervallo data.</div>
               )}
             </section>
           </section>

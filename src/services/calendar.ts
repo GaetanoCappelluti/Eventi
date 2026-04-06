@@ -8,9 +8,9 @@ const toUtcTimestamp = (isoDate: string) => {
 };
 
 export const buildIcsFile = (event: EventItem) => {
-  const start = toUtcTimestamp(event.dates.startDate);
-  const end = toUtcTimestamp(event.dates.endDate ?? event.dates.startDate);
-  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//EventoEuropa//IT\nBEGIN:VEVENT\nUID:${event.id}@eventoeuropa\nDTSTAMP:${toUtcTimestamp(event.dates.startDate)}\nDTSTART:${start}\nDTEND:${end}\nSUMMARY:${escapeIcs(event.title)}\nDESCRIPTION:${escapeIcs(event.description)}\nLOCATION:${escapeIcs(`${event.geo.locality}, ${event.geo.region}, ${event.geo.country}`)}\nEND:VEVENT\nEND:VCALENDAR`;
+  const start = toUtcTimestamp(event.startDate);
+  const end = toUtcTimestamp(event.endDate ?? event.startDate);
+  return `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//EventoEuropa//IT\nBEGIN:VEVENT\nUID:${event.id}@eventoeuropa\nDTSTAMP:${toUtcTimestamp(event.startDate)}\nDTSTART:${start}\nDTEND:${end}\nSUMMARY:${escapeIcs(event.title)}\nDESCRIPTION:${escapeIcs(event.description)}\nLOCATION:${escapeIcs(`${event.city}, ${event.region}, ${event.country}`)}\nEND:VEVENT\nEND:VCALENDAR`;
 };
 
 export const downloadEventIcs = (event: EventItem) => {

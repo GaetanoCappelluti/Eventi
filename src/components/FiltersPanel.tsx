@@ -63,7 +63,7 @@ export const FiltersPanel = ({ filters, onChange, onSearch, loading, countries, 
 
         <label className="text-sm text-slate-300">
           Macro-categoria
-          <select value={filters.macroCategory ?? ''} onChange={update('macroCategory')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
+          <select value={filters.category ?? ''} onChange={update('category')} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 p-2">
             <option value="">Tutte</option>
             {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
           </select>

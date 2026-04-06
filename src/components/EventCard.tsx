@@ -15,9 +15,9 @@ export const EventCard = ({ event, onDetails, onAddToCalendar }: EventCardProps)
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-white">{event.title}</h3>
-          <p className="mt-1 text-sm text-slate-300">{formatDate(event.dates.startDate)} · {event.geo.locality}, {event.geo.country}</p>
+          <p className="mt-1 text-sm text-slate-300">{formatDate(event.startDate)} · {event.city}, {event.country}</p>
         </div>
-        <span className="rounded-full bg-slate-800 px-2 py-1 text-xs text-slate-300">{event.macroCategory}</span>
+        <span className="rounded-full bg-slate-800 px-2 py-1 text-xs text-slate-300">{event.category}</span>
       </div>
 
       <p className="mt-3 line-clamp-3 text-sm text-slate-300">{event.description}</p>

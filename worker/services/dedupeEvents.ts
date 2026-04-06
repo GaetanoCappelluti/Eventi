@@ -1,37 +1,30 @@
-import type { NormalizedEvent } from '../models/event';
+import type { EventRecord } from '../types/event';
 
-const mergeEvents = (primary: NormalizedEvent, duplicate: NormalizedEvent): NormalizedEvent => {
-  const refs = [...primary.sourceRefs, ...duplicate.sourceRefs];
-  const themes = [...new Set([...primary.themes, ...duplicate.themes])];
-  const tags = [...new Set([...primary.tags, ...duplicate.tags])];
+const merge = (a: EventRecord, b: EventRecord): EventRecord => ({
+  ...a,
+  description: a.description.length >= b.description.length ? a.description : b.description,
+  ticketUrl: a.ticketUrl ?? b.ticketUrl,
+  officialUrl: a.officialUrl ?? b.officialUrl,
+  tags: [...new Set([...a.tags, ...b.tags])],
+  confidenceScore: Math.max(a.confidenceScore, b.confidenceScore),
+  freshnessScore: Math.max(a.freshnessScore, b.freshnessScore),
+  updatedAt: new Date().toISOString(),
+});
 
-  return {
-    ...primary,
-    description: primary.description.length >= duplicate.description.length ? primary.description : duplicate.description,
-    bookingUrl: primary.bookingUrl ?? duplicate.bookingUrl,
-    sourceRefs: refs,
-    themes,
-    tags,
-    confidenceScore: Math.max(primary.confidenceScore, duplicate.confidenceScore),
-    rankingScore: Math.max(primary.rankingScore, duplicate.rankingScore),
-    updatedAt: new Date().toISOString(),
-  };
-};
+export const dedupeEvents = (events: EventRecord[]) => {
+  const byKey = new Map<string, EventRecord>();
 
-export const dedupeEvents = (events: NormalizedEvent[]) => {
-  const map = new Map<string, NormalizedEvent>();
-
-  events.forEach((event) => {
-    const existing = map.get(event.dedupeHash);
+  for (const event of events) {
+    const existing = byKey.get(event.dedupeKey);
     if (!existing) {
-      map.set(event.dedupeHash, event);
-      return;
+      byKey.set(event.dedupeKey, event);
+      continue;
     }
 
     const winner = existing.confidenceScore >= event.confidenceScore ? existing : event;
     const loser = winner === existing ? event : existing;
-    map.set(event.dedupeHash, mergeEvents(winner, loser));
-  });
+    byKey.set(event.dedupeKey, merge(winner, loser));
+  }
 
-  return [...map.values()];
+  return [...byKey.values()];
 };

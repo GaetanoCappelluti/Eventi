@@ -14,11 +14,12 @@ const initialFilters: EventFilters = { quickRange: 'none' };
 
 const emptyKpis: EventKpis = {
   totalEvents: 0,
-  byMacroCategory: [],
-  byCountry: [],
-  byRegion: [],
-  topLocations: [],
-  topThemes: [],
+  topMacroCategories: [],
+  topSubcategories: [],
+  topCountries: [],
+  topRegions: [],
+  topCities: [],
+  periodCovered: {},
 };
 
 export const useEventSearch = () => {

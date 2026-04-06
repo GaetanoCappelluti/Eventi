@@ -1,0 +1,12 @@
+import type { SourceSeed } from '../types/event';
+
+export const sourceSeeds: SourceSeed[] = [
+  { id: 'it-proloco-network', name: 'Rete Pro Loco Italia', country: 'Italia', language: 'it', type: 'institutional', reliability: 0.92, sourceKind: 'directory', url: 'https://www.unioneproloco.it', categoryFocus: ['Sagre & Tradizioni', 'Food Festival & Street Food', 'Religioso & Popolare'] },
+  { id: 'it-fiere-milano', name: 'Fiera Milano', country: 'Italia', language: 'it', type: 'official', reliability: 0.95, sourceKind: 'fair-portal', url: 'https://www.fieramilano.it', categoryFocus: ['Fiere & Expo', 'Tecnologia & Innovazione', 'Moda, Design & Creatività'] },
+  { id: 'de-berlin-events', name: 'Berlin.de Events', country: 'Germania', language: 'de', type: 'institutional', reliability: 0.88, sourceKind: 'municipality', url: 'https://www.berlin.de/events/', categoryFocus: ['Festival Cittadini', 'Mercatini & Eventi Locali', 'Famiglia & Bambini'] },
+  { id: 'fr-tourisme', name: 'France.fr Agenda', country: 'Francia', language: 'fr', type: 'institutional', reliability: 0.87, sourceKind: 'tourism-board', url: 'https://www.france.fr/fr/evenements', categoryFocus: ['Turismo & Territorio', 'Artigianato & Handmade', 'Festival Cittadini'] },
+  { id: 'es-spain-info', name: 'Spain.info Agenda', country: 'Spagna', language: 'es', type: 'institutional', reliability: 0.86, sourceKind: 'tourism-board', url: 'https://www.spain.info/es/agenda/', categoryFocus: ['Food Festival & Street Food', 'Sagre & Tradizioni', 'Eventi di Comunità'] },
+  { id: 'nl-car-audio-community', name: 'NL Car Audio Community', country: 'Paesi Bassi', language: 'nl', type: 'community', reliability: 0.76, sourceKind: 'community', url: 'https://www.nlcaraudio.nl/events', categoryFocus: ['Car Audio & Raduni', 'Auto, Moto & Tuning', 'HiFi & Audio'] },
+  { id: 'eu-ticketing-hub', name: 'Eventbrite Europe Hub', country: 'Europa', language: 'en', type: 'ticketing', reliability: 0.79, sourceKind: 'ticketing', url: 'https://www.eventbrite.com/d/europe/events/', categoryFocus: ['Fiere & Expo', 'Festival Cittadini', 'Tecnologia & Innovazione'] },
+  { id: 'pl-local-fairs', name: 'Poland Local Fairs', country: 'Polonia', language: 'pl', type: 'editorial', reliability: 0.73, sourceKind: 'editorial', url: 'https://www.poland.travel/en/events', categoryFocus: ['Mercatini & Eventi Locali', 'Agricoltura & Ruralità', 'Food Festival & Street Food'] },
+];

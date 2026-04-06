@@ -9,7 +9,6 @@ export type EventFilters = {
   region?: string;
   country?: string;
   category?: string;
-  macroCategory?: string;
   query?: string;
 };
 
@@ -17,39 +16,42 @@ type ApiFilters = Omit<EventFilters, 'query'> & { q?: string };
 
 export type EventItem = {
   id: string;
-  slug: string;
   title: string;
   description: string;
-  macroCategory: string;
+  startDate: string;
+  endDate?: string;
+  city: string;
+  region: string;
+  country: string;
+  venue?: string;
   category: string;
-  themes: string[];
+  subcategory: string;
   tags: string[];
-  geo: {
-    countryCode: string;
-    country: string;
-    region: string;
-    locality: string;
-    venue?: string;
-  };
-  dates: {
-    startDate: string;
-    endDate?: string;
-    timezone: string;
-  };
   officialUrl: string;
-  bookingUrl?: string;
+  ticketUrl?: string;
+  sourceUrl: string;
+  sourceDomain: string;
+  language: string;
+  priceText?: string;
+  currency?: string;
   confidenceScore: number;
-  rankingScore: number;
-  ticketPrice?: string;
+  freshnessScore: number;
+  dedupeKey: string;
+  imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type EventKpis = {
   totalEvents: number;
-  byMacroCategory: { key: string; count: number }[];
-  byCountry: { key: string; count: number }[];
-  byRegion: { key: string; count: number }[];
-  topLocations: { key: string; count: number }[];
-  topThemes: { key: string; count: number }[];
+  topMacroCategories: { key: string; count: number }[];
+  topSubcategories: { key: string; count: number }[];
+  topCountries: { key: string; count: number }[];
+  topRegions: { key: string; count: number }[];
+  topCities: { key: string; count: number }[];
+  periodCovered: { from?: string; to?: string };
 };
 
 const withQuickRange = (filters: EventFilters): EventFilters => {
@@ -89,8 +91,8 @@ export const searchEvents = async (filters: EventFilters): Promise<EventItem[]> 
 
 export const getEventKpis = async (filters: EventFilters): Promise<EventKpis> => searchClient.kpis(toApiFilters(filters));
 
-export const getRegionSummary = (kpis: EventKpis) => kpis.byRegion.slice(0, 8);
+export const getRegionSummary = (kpis: EventKpis) => kpis.topRegions;
 
-export const getCategorySummary = (kpis: EventKpis) => kpis.byMacroCategory;
+export const getCategorySummary = (kpis: EventKpis) => kpis.topMacroCategories;
 
-export const getHighlightedEvents = (events: EventItem[]) => events.slice(0, 4);
+export const getHighlightedEvents = (events: EventItem[]) => events;

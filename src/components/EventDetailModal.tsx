@@ -21,17 +21,13 @@ export const EventDetailModal = ({ event, onClose, onAddToCalendar }: EventDetai
         </div>
 
         <div className="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
-          <p><strong>Data:</strong> {formatDate(event.dates.startDate)}{event.dates.endDate ? ` → ${formatDate(event.dates.endDate)}` : ''}</p>
-          <p><strong>Luogo:</strong> {event.geo.locality}, {event.geo.region}, {event.geo.country}</p>
-          <p><strong>Categoria:</strong> {event.category}</p>
+          <p><strong>Data:</strong> {formatDate(event.startDate)}{event.endDate ? ` → ${formatDate(event.endDate)}` : ''}</p>
+          <p><strong>Luogo:</strong> {event.city}, {event.region}, {event.country}</p>
+          <p><strong>Categoria:</strong> {event.category} · {event.subcategory}</p>
           <p><strong>Confidence:</strong> {(event.confidenceScore * 100).toFixed(0)}%</p>
         </div>
 
         <p className="mt-4 text-slate-200">{event.description}</p>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          {event.tags.map((tag) => <span key={tag} className="rounded-full border border-slate-700 px-2 py-0.5 text-xs text-slate-300">#{tag}</span>)}
-        </div>
 
         <section className="mt-6 rounded-xl border border-brand-500/40 bg-brand-950/20 p-4">
           <p className="text-sm font-semibold text-brand-200">🌐 Link ufficiale evento</p>
@@ -42,8 +38,8 @@ export const EventDetailModal = ({ event, onClose, onAddToCalendar }: EventDetai
           ) : <p className="mt-2 text-sm text-amber-300">Link ufficiale non disponibile</p>}
 
           <p className="mt-4 text-sm font-semibold text-brand-200">🎟️ Link prenotazione</p>
-          {event.bookingUrl ? (
-            <a href={event.bookingUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-base font-medium text-brand-300 underline underline-offset-4 hover:text-brand-200">
+          {event.ticketUrl ? (
+            <a href={event.ticketUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-base font-medium text-brand-300 underline underline-offset-4 hover:text-brand-200">
               Prenota / Biglietti
             </a>
           ) : <p className="mt-2 text-sm text-slate-300">Nessun link prenotazione associato.</p>}
