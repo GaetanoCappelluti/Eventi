@@ -39,6 +39,8 @@ const App = () => {
           onChange={setFilters}
           onSearch={() => void runSearch()}
           loading={loading}
+          countries={kpis.byCountry.map((item) => item.key)}
+          regions={kpis.byRegion.map((item) => item.key)}
         />
 
         {hasSearched ? (
@@ -51,7 +53,7 @@ const App = () => {
 
             <div className="grid gap-4 lg:grid-cols-2">
               <RegionSummary items={regionSummary} selected={filters.region} onSelect={(region) => void applyProgressiveFilter({ region: filters.region === region ? undefined : region })} />
-              <CategorySummary items={categorySummary} selected={filters.category} onSelect={(category) => void applyProgressiveFilter({ category: filters.category === category ? undefined : category })} />
+              <CategorySummary items={categorySummary} selected={filters.macroCategory} onSelect={(category) => void applyProgressiveFilter({ macroCategory: filters.macroCategory === category ? undefined : category })} />
             </div>
 
             {highlighted.length > 0 ? (

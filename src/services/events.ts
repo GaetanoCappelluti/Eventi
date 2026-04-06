@@ -1,9 +1,6 @@
-import { MOCK_EVENTS, type EventDataItem } from '../data/events';
-import { filterEvents } from '../utils/filterEvents';
+import { searchClient } from './searchClient';
 
 export type QuickRange = 'next_7' | 'next_30' | 'this_month' | 'none';
-
-export type EventItem = EventDataItem;
 
 export type EventFilters = {
   from?: string;
@@ -12,55 +9,88 @@ export type EventFilters = {
   region?: string;
   country?: string;
   category?: string;
+  macroCategory?: string;
   query?: string;
+};
+
+type ApiFilters = Omit<EventFilters, 'query'> & { q?: string };
+
+export type EventItem = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  macroCategory: string;
+  category: string;
+  themes: string[];
+  tags: string[];
+  geo: {
+    countryCode: string;
+    country: string;
+    region: string;
+    locality: string;
+    venue?: string;
+  };
+  dates: {
+    startDate: string;
+    endDate?: string;
+    timezone: string;
+  };
+  officialUrl: string;
+  bookingUrl?: string;
+  confidenceScore: number;
+  rankingScore: number;
+  ticketPrice?: string;
 };
 
 export type EventKpis = {
   totalEvents: number;
-  highlights: number;
+  byMacroCategory: { key: string; count: number }[];
+  byCountry: { key: string; count: number }[];
+  byRegion: { key: string; count: number }[];
   topLocations: { key: string; count: number }[];
-  categories: { key: string; count: number }[];
-  macroAreas: { key: string; count: number }[];
-  temporalClusters: { key: string; count: number }[];
+  topThemes: { key: string; count: number }[];
 };
 
-const countBy = (events: EventItem[], keySelector: (event: EventItem) => string) =>
-  Object.entries(
-    events.reduce<Record<string, number>>((acc, event) => {
-      const key = keySelector(event);
-      acc[key] = (acc[key] ?? 0) + 1;
-      return acc;
-    }, {}),
-  )
-    .map(([key, count]) => ({ key, count }))
-    .sort((a, b) => b.count - a.count);
+const withQuickRange = (filters: EventFilters): EventFilters => {
+  if (!filters.quickRange || filters.quickRange === 'none') return filters;
 
-const temporalBucket = (isoDate: string) => {
-  const eventDate = new Date(isoDate);
-  const deltaDays = Math.ceil((eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  if (deltaDays <= 7) return 'Prossimi 7 giorni';
-  if (deltaDays <= 30) return 'Prossimi 30 giorni';
-  return 'Oltre 30 giorni';
+  const today = new Date();
+  const start = today.toISOString().slice(0, 10);
+
+  if (filters.quickRange === 'next_7') {
+    const to = new Date(today);
+    to.setDate(to.getDate() + 7);
+    return { ...filters, from: filters.from ?? start, to: filters.to ?? to.toISOString().slice(0, 10) };
+  }
+
+  if (filters.quickRange === 'next_30') {
+    const to = new Date(today);
+    to.setDate(to.getDate() + 30);
+    return { ...filters, from: filters.from ?? start, to: filters.to ?? to.toISOString().slice(0, 10) };
+  }
+
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  return { ...filters, from: filters.from ?? start, to: filters.to ?? endOfMonth.toISOString().slice(0, 10) };
 };
 
-export const getEventOfficialUrl = (event: EventItem) => event.officialUrl ?? event.website;
+const toApiFilters = (filters: EventFilters): ApiFilters => {
+  const computed = withQuickRange(filters);
+  const { query, ...rest } = computed;
+  return { ...rest, q: query };
+};
+
+export const getEventOfficialUrl = (event: EventItem) => event.officialUrl;
 
 export const searchEvents = async (filters: EventFilters): Promise<EventItem[]> => {
-  const result = filterEvents(MOCK_EVENTS, filters);
-  return Promise.resolve(result);
+  const result = await searchClient.search(toApiFilters(filters));
+  return result.items;
 };
 
-export const getEventKpis = (events: EventItem[]): EventKpis => ({
-  totalEvents: events.length,
-  highlights: events.filter((event) => event.highlight).length,
-  topLocations: countBy(events, (event) => `${event.location}, ${event.country}`).slice(0, 5),
-  categories: countBy(events, (event) => event.sector),
-  macroAreas: countBy(events, (event) => event.country),
-  temporalClusters: countBy(events, (event) => temporalBucket(event.date)),
-});
+export const getEventKpis = async (filters: EventFilters): Promise<EventKpis> => searchClient.kpis(toApiFilters(filters));
 
-export const getRegionSummary = (events: EventItem[]) => countBy(events, (event) => event.region).slice(0, 8);
+export const getRegionSummary = (kpis: EventKpis) => kpis.byRegion.slice(0, 8);
 
-export const getCategorySummary = (events: EventItem[]) => countBy(events, (event) => event.sector);
+export const getCategorySummary = (kpis: EventKpis) => kpis.byMacroCategory;
 
-export const getHighlightedEvents = (events: EventItem[]) => events.filter((event) => event.highlight).slice(0, 4);
+export const getHighlightedEvents = (events: EventItem[]) => events.slice(0, 4);

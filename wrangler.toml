@@ -1,0 +1,7 @@
+name = "eventoeuropa-api"
+main = "worker/index.ts"
+compatibility_date = "2026-04-05"
+workers_dev = true
+
+[vars]
+APP_NAME = "EventoEuropa"

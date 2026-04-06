@@ -1,12 +1,11 @@
 export const CATEGORIES = [
-  'Tecnologia',
-  'Startup',
-  'Sostenibilità',
-  'Cultura',
-  'Business',
-  'Design',
-  'Turismo',
-  'Food',
+  'Sagre e Feste',
+  'Fiere e Mercati',
+  'Festival Territoriali',
+  'Enogastronomia',
+  'Hi-Fi e Car Audio',
+  'Audio e Musica',
+  'Eventi Locali e Regionali',
 ] as const;
 
 export const MACRO_AREAS = ['Sud Europa', 'Centro Europa', 'Nord Europa', 'Europa Ovest'] as const;
