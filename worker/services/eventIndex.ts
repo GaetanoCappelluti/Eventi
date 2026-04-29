@@ -64,6 +64,14 @@ const rankEvents = (events: NormalizedEvent[], filters: SearchFilters) =>
 class EventIndex {
   private events = dedupeEvents(seedEvents);
 
+  replace(events: NormalizedEvent[]) {
+    this.events = dedupeEvents(events);
+  }
+
+  merge(events: NormalizedEvent[]) {
+    this.events = dedupeEvents([...this.events, ...events]);
+  }
+
   query(filters: SearchFilters): SearchResult {
     const filtered = applyFilters(this.events, filters);
     const ranked = rankEvents(filtered, filters);
