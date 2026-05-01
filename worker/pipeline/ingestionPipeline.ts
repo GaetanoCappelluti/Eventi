@@ -11,6 +11,14 @@ export type PipelineStageResult = {
   extractedEvents: number;
   normalizedEvents: number;
   dedupedEvents: number;
+  queryCount: number;
+  discoveredLinks: number;
+  uniqueLinks: number;
+  fetchOk: number;
+  fetchFailed: number;
+  schemaEventsExtracted: number;
+  htmlFallbackEventsExtracted: number;
+  rejectedNoDate: number;
 };
 
 const extractJsonLdNodes = (html: string): unknown[] => {
@@ -28,25 +36,43 @@ const extractJsonLdNodes = (html: string): unknown[] => {
 
 export const runIngestionPipeline = async (): Promise<{ items: NormalizedEvent[]; stats: PipelineStageResult }> => {
   const discovered = sourceSeeds.sort((a, b) => a.priority - b.priority);
-  const discoveredPages = await discoverEventPages();
+  const discovery = await discoverEventPages();
+  const discoveredPages = discovery.pages;
 
   const extractedRaw: Partial<NormalizedEvent>[] = [];
+  let fetchOk = 0;
+  let fetchFailed = 0;
+  let schemaEventsExtracted = 0;
+  let htmlFallbackEventsExtracted = 0;
+  let rejectedNoDate = 0;
 
   for (const page of discoveredPages) {
     try {
       const response = await fetch(page.url);
-      if (!response.ok) continue;
+      if (!response.ok) {
+        fetchFailed += 1;
+        continue;
+      }
+      fetchOk += 1;
       const html = await response.text();
       const schemas = extractJsonLdNodes(html);
 
       for (const schema of schemas) {
-        extractedRaw.push(...schemaEventExtractor({ sourceId: page.sourceId, sourceUrl: page.url, schemaJson: schema }));
+        const schemaExtracted = schemaEventExtractor({ sourceId: page.sourceId, sourceUrl: page.url, schemaJson: schema });
+        schemaEventsExtracted += schemaExtracted.length;
+        extractedRaw.push(...schemaExtracted);
       }
 
       if (schemas.length === 0) {
-        extractedRaw.push(...htmlEventExtractor({ sourceId: page.sourceId, sourceUrl: page.url, html }));
+        const fallbackExtracted = htmlEventExtractor({ sourceId: page.sourceId, sourceUrl: page.url, html });
+        if (fallbackExtracted.length === 0) {
+          rejectedNoDate += 1;
+        }
+        htmlFallbackEventsExtracted += fallbackExtracted.length;
+        extractedRaw.push(...fallbackExtracted);
       }
     } catch {
+      fetchFailed += 1;
       continue;
     }
   }
@@ -61,6 +87,14 @@ export const runIngestionPipeline = async (): Promise<{ items: NormalizedEvent[]
       extractedEvents: extractedRaw.length,
       normalizedEvents: normalized.length,
       dedupedEvents: deduped.length,
+      queryCount: discovery.stats.queryCount,
+      discoveredLinks: discovery.stats.discoveredLinks,
+      uniqueLinks: discovery.stats.uniqueLinks,
+      fetchOk,
+      fetchFailed,
+      schemaEventsExtracted,
+      htmlFallbackEventsExtracted,
+      rejectedNoDate,
     },
   };
 };

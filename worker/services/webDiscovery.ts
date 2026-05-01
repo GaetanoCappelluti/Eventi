@@ -8,6 +8,17 @@ export type DiscoveredPage = {
   snippet: string;
 };
 
+export type DiscoveryOptions = {
+  maxPages?: number;
+  linksPerQuery?: number;
+};
+
+export type DiscoveryStats = {
+  queryCount: number;
+  discoveredLinks: number;
+  uniqueLinks: number;
+};
+
 const clean = (value: string) => value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 
 const parseDuckDuckGoLite = (html: string) => {
@@ -29,10 +40,13 @@ const buildQueries = () =>
     })),
   );
 
-export const discoverEventPages = async (maxPages = 24): Promise<DiscoveredPage[]> => {
+export const discoverEventPages = async (options: DiscoveryOptions = {}): Promise<{ pages: DiscoveredPage[]; stats: DiscoveryStats }> => {
+  const maxPages = options.maxPages ?? 100;
+  const linksPerQuery = options.linksPerQuery ?? 5;
   const queries = buildQueries();
   const discovered: DiscoveredPage[] = [];
   const seen = new Set<string>();
+  let discoveredLinks = 0;
 
   for (const item of queries) {
     if (discovered.length >= maxPages) break;
@@ -47,7 +61,8 @@ export const discoverEventPages = async (maxPages = 24): Promise<DiscoveredPage[
     if (!response.ok) continue;
 
     const html = await response.text();
-    const links = parseDuckDuckGoLite(html).slice(0, 2);
+    const links = parseDuckDuckGoLite(html).slice(0, linksPerQuery);
+    discoveredLinks += links.length;
 
     for (const link of links) {
       if (discovered.length >= maxPages) break;
@@ -63,5 +78,12 @@ export const discoverEventPages = async (maxPages = 24): Promise<DiscoveredPage[
     }
   }
 
-  return discovered;
+  return {
+    pages: discovered,
+    stats: {
+      queryCount: queries.length,
+      discoveredLinks,
+      uniqueLinks: discovered.length,
+    },
+  };
 };

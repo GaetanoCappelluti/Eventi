@@ -46,7 +46,7 @@ export const htmlEventExtractor = (input: HtmlExtractionInput): Partial<Normaliz
       rankingScore: 0.4,
       origin: 'html_fallback',
       verificationStatus: 'weak',
-      sourceQualityNote: 'Evento estratto da HTML generico, richiede verifica',
+      sourceQualityNote: 'Estratto da HTML generico, richiede verifica',
     },
   ];
 };

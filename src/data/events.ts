@@ -1,4 +1,7 @@
 export type EventDataItem = {
+  origin?: 'frontend_mock' | 'seed' | 'schema_org' | 'html_fallback' | 'api' | 'manual';
+  verificationStatus?: 'verified' | 'probable' | 'weak' | 'synthetic';
+  sourceQualityNote?: string;
   id: string;
   name: string;
   description: string;
@@ -56,6 +59,7 @@ const places = [
   { location: 'Stoccolma', country: 'Svezia', region: 'Stoccolma' },
 ];
 
+// solo dataset demo/dev, non usare in produzione
 export const MOCK_EVENTS: EventDataItem[] = Array.from({ length: 320 }, (_, index) => {
   const id = index + 1;
   const sector = sectors[index % sectors.length];
@@ -80,5 +84,8 @@ export const MOCK_EVENTS: EventDataItem[] = Array.from({ length: 320 }, (_, inde
     emoji: sector.emoji,
     tags: [...sector.tags, place.location.toLowerCase().replace(/\s+/g, '-')],
     highlight: id % 40 === 0,
+    origin: 'frontend_mock',
+    verificationStatus: 'synthetic',
+    sourceQualityNote: 'Evento demo frontend, non verificato sul web',
   };
 });
