@@ -66,12 +66,18 @@ const rankEvents = (events: NormalizedEvent[], filters: SearchFilters) =>
 class EventIndex {
   private events = dedupeEvents(seedEvents);
 
+  private lastIngestionStats: Record<string, unknown> | null = null;
+
   replace(events: NormalizedEvent[]) {
     this.events = dedupeEvents(events);
   }
 
   merge(events: NormalizedEvent[]) {
     this.events = dedupeEvents([...this.events, ...events]);
+  }
+
+  setLastIngestionStats(stats: Record<string, unknown>) {
+    this.lastIngestionStats = stats;
   }
 
   query(filters: SearchFilters): SearchResult {
@@ -122,10 +128,15 @@ class EventIndex {
       totalIndexed: this.events.length,
       byOrigin,
       byVerificationStatus,
+      frontendMockCount: byOrigin.frontend_mock ?? 0,
       seedCount: byOrigin.seed ?? 0,
-      weakFallbackCount: byVerificationStatus.weak ?? 0,
+      schemaOrgCount: byOrigin.schema_org ?? 0,
+      htmlFallbackCount: byOrigin.html_fallback ?? 0,
       verifiedCount: byVerificationStatus.verified ?? 0,
       probableCount: byVerificationStatus.probable ?? 0,
+      weakCount: byVerificationStatus.weak ?? 0,
+      syntheticCount: byVerificationStatus.synthetic ?? 0,
+      lastIngestionStats: this.lastIngestionStats,
     };
   }
 }

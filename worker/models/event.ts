@@ -68,7 +68,7 @@ export type NormalizedEvent = {
   rankingScore: number;
   dedupeHash: string;
   sourceRefs: SourceReference[];
-  origin?: 'seed' | 'schema_org' | 'html_fallback' | 'api' | 'manual';
+  origin?: 'frontend_mock' | 'seed' | 'schema_org' | 'html_fallback' | 'api' | 'manual';
   verificationStatus?: 'verified' | 'probable' | 'weak' | 'synthetic';
   sourceQualityNote?: string;
   createdAt: string;
