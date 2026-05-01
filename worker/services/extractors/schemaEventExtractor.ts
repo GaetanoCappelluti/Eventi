@@ -33,17 +33,24 @@ export const schemaEventExtractor = (input: SchemaExtractionInput): Partial<Norm
   return events.map((item) => {
     const name = readValue(item.name) ?? 'Evento senza titolo';
     const description = readValue(item.description) ?? '';
+    const schemaStartDate = readValue(item.startDate)?.slice(0, 10);
+    const schemaUrl = readValue(item.url);
     const categoryPrediction = classifyEventCategory(`${name} ${description}`);
     const location = (item.location as GenericRecord | undefined) ?? {};
     const address = (location.address as GenericRecord | undefined) ?? {};
 
+    const hasRequiredName = Boolean(readValue(item.name));
+    const hasRequiredStartDate = Boolean(schemaStartDate);
+    const hasRequiredUrlOrLocation = Boolean(schemaUrl || readValue(location.name) || readValue(address.addressLocality));
+    const verificationStatus = hasRequiredName && hasRequiredStartDate && hasRequiredUrlOrLocation ? 'verified' : 'probable';
+
     return {
       title: name,
       description,
-      officialUrl: readValue(item.url) ?? input.sourceUrl,
+      officialUrl: schemaUrl ?? input.sourceUrl,
       bookingUrl: readValue(item.offers),
       dates: {
-        startDate: (readValue(item.startDate) ?? new Date().toISOString()).slice(0, 10),
+        startDate: schemaStartDate ?? '1970-01-01',
         endDate: readValue(item.endDate)?.slice(0, 10),
         timezone: 'Europe/Rome',
       },
@@ -60,6 +67,9 @@ export const schemaEventExtractor = (input: SchemaExtractionInput): Partial<Norm
       category: categoryPrediction.category,
       confidenceScore: 0.62 + categoryPrediction.confidenceBoost,
       rankingScore: 0.58,
+      origin: 'schema_org',
+      verificationStatus,
+      sourceQualityNote: verificationStatus === 'verified' ? 'Evento verificato tramite dati strutturati schema.org/Event' : 'Evento schema.org incompleto, verifica consigliata',
     };
   });
 };

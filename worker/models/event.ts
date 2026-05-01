@@ -68,6 +68,9 @@ export type NormalizedEvent = {
   rankingScore: number;
   dedupeHash: string;
   sourceRefs: SourceReference[];
+  origin?: 'seed' | 'schema_org' | 'html_fallback' | 'api' | 'manual';
+  verificationStatus?: 'verified' | 'probable' | 'weak' | 'synthetic';
+  sourceQualityNote?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -83,6 +86,8 @@ export type SearchFilters = {
   themes?: string[];
   limit?: number;
   offset?: number;
+  includeWeak?: boolean;
+  includeSynthetic?: boolean;
 };
 
 export type SearchResult = {
@@ -97,4 +102,8 @@ export type EventKpis = {
   byRegion: { key: string; count: number }[];
   topLocations: { key: string; count: number }[];
   topThemes: { key: string; count: number }[];
+  totalVerified?: number;
+  totalProbable?: number;
+  totalWeak?: number;
+  totalSynthetic?: number;
 };
