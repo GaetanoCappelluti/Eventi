@@ -9,6 +9,8 @@ const getFiltersFromUrl = (url: URL): SearchFilters => ({
   region: url.searchParams.get('region') ?? undefined,
   macroCategory: url.searchParams.get('macroCategory') ?? undefined,
   category: url.searchParams.get('category') ?? undefined,
+  includeSynthetic: url.searchParams.get('includeSynthetic') === 'true',
+  includeWeak: url.searchParams.get('includeWeak') === 'true',
 });
 
 export const kpisRoute = (request: Request) => {

@@ -108,6 +108,9 @@ const buildSeedEvents = (): NormalizedEvent[] =>
       confidenceScore: 0.82 + (index % 10) / 100,
       rankingScore: 0.79 + (index % 12) / 100,
       dedupeHash: `${loc.countryCode}|${loc.locality}|${slug}|${startDate}`,
+      origin: 'seed',
+      verificationStatus: 'synthetic',
+      sourceQualityNote: 'Evento demo generato internamente, non verificato sul web',
       sourceRefs: [
         {
           sourceId: `${loc.countryCode.toLowerCase()}-tourism-${index % 9}`,

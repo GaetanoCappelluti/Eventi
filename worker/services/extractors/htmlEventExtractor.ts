@@ -19,7 +19,8 @@ export const htmlEventExtractor = (input: HtmlExtractionInput): Partial<Normaliz
   const title = parseTitle(input.html) ?? 'Evento da pagina web';
   const body = stripHtml(input.html);
   const description = body.slice(0, 400);
-  const startDate = parseIsoDate(body) ?? new Date().toISOString().slice(0, 10);
+  const startDate = parseIsoDate(body);
+  if (!startDate) return [];
   const categoryPrediction = classifyEventCategory(`${title} ${description}`);
 
   return [
@@ -43,6 +44,9 @@ export const htmlEventExtractor = (input: HtmlExtractionInput): Partial<Normaliz
       category: categoryPrediction.category,
       confidenceScore: 0.45 + categoryPrediction.confidenceBoost,
       rankingScore: 0.4,
+      origin: 'html_fallback',
+      verificationStatus: 'weak',
+      sourceQualityNote: 'Evento estratto da HTML generico, richiede verifica',
     },
   ];
 };

@@ -27,6 +27,8 @@ const toMillis = (iso: string) => new Date(`${iso}T00:00:00Z`).getTime();
 
 const applyFilters = (events: NormalizedEvent[], filters: SearchFilters) =>
   events.filter((event) => {
+    if (event.verificationStatus === 'synthetic' && !filters.includeSynthetic) return false;
+    if (event.verificationStatus === 'weak' && !filters.includeWeak) return false;
     if (filters.country && event.geo.country !== filters.country) return false;
     if (filters.region && event.geo.region !== filters.region) return false;
     if (filters.macroCategory && event.macroCategory !== filters.macroCategory) return false;
@@ -87,6 +89,10 @@ class EventIndex {
 
   kpis(filters: SearchFilters): EventKpis {
     const filtered = applyFilters(this.events, filters);
+    const totalVerified = filtered.filter((event) => event.verificationStatus === 'verified').length;
+    const totalProbable = filtered.filter((event) => event.verificationStatus === 'probable' || !event.verificationStatus).length;
+    const totalWeak = filtered.filter((event) => event.verificationStatus === 'weak').length;
+    const totalSynthetic = filtered.filter((event) => event.verificationStatus === 'synthetic').length;
     return {
       totalEvents: filtered.length,
       byMacroCategory: countBy(filtered, (event) => event.macroCategory),
@@ -94,11 +100,33 @@ class EventIndex {
       byRegion: countBy(filtered, (event) => event.geo.region),
       topLocations: countBy(filtered, (event) => `${event.geo.locality}, ${event.geo.country}`).slice(0, 10),
       topThemes: countBy(filtered, (event) => event.themes[0] ?? 'altro').slice(0, 10),
+      totalVerified,
+      totalProbable,
+      totalWeak,
+      totalSynthetic,
     };
   }
 
   stats() {
-    return { totalSeeded: this.events.length };
+    const byOrigin = this.events.reduce<Record<string, number>>((acc, event) => {
+      const key = event.origin ?? 'manual';
+      acc[key] = (acc[key] ?? 0) + 1;
+      return acc;
+    }, {});
+    const byVerificationStatus = this.events.reduce<Record<string, number>>((acc, event) => {
+      const key = event.verificationStatus ?? 'probable';
+      acc[key] = (acc[key] ?? 0) + 1;
+      return acc;
+    }, {});
+    return {
+      totalIndexed: this.events.length,
+      byOrigin,
+      byVerificationStatus,
+      seedCount: byOrigin.seed ?? 0,
+      weakFallbackCount: byVerificationStatus.weak ?? 0,
+      verifiedCount: byVerificationStatus.verified ?? 0,
+      probableCount: byVerificationStatus.probable ?? 0,
+    };
   }
 }
 

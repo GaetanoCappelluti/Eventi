@@ -9,6 +9,12 @@ type EventCardProps = {
 
 export const EventCard = ({ event, onDetails, onAddToCalendar }: EventCardProps) => {
   const officialUrl = getEventOfficialUrl(event);
+  const verificationBadge = {
+    verified: 'Verificato',
+    probable: 'Probabile',
+    weak: 'Debole',
+    synthetic: 'Demo',
+  }[event.verificationStatus ?? 'probable'];
 
   return (
     <article className="card-surface p-4">
@@ -18,6 +24,10 @@ export const EventCard = ({ event, onDetails, onAddToCalendar }: EventCardProps)
           <p className="mt-1 text-sm text-slate-300">{formatDate(event.dates.startDate)} · {event.geo.locality}, {event.geo.country}</p>
         </div>
         <span className="rounded-full bg-slate-800 px-2 py-1 text-xs text-slate-300">{event.macroCategory}</span>
+      </div>
+
+      <div className="mt-2">
+        <span className="rounded-full border border-slate-700 px-2 py-1 text-xs text-slate-300">{verificationBadge}</span>
       </div>
 
       <p className="mt-3 line-clamp-3 text-sm text-slate-300">{event.description}</p>

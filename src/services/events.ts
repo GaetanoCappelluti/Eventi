@@ -41,6 +41,9 @@ export type EventItem = {
   confidenceScore: number;
   rankingScore: number;
   ticketPrice?: string;
+  origin?: 'seed' | 'schema_org' | 'html_fallback' | 'api' | 'manual';
+  verificationStatus?: 'verified' | 'probable' | 'weak' | 'synthetic';
+  sourceQualityNote?: string;
 };
 
 export type EventKpis = {
@@ -50,6 +53,10 @@ export type EventKpis = {
   byRegion: { key: string; count: number }[];
   topLocations: { key: string; count: number }[];
   topThemes: { key: string; count: number }[];
+  totalVerified?: number;
+  totalProbable?: number;
+  totalWeak?: number;
+  totalSynthetic?: number;
 };
 
 export type EventSearchResult = {

@@ -11,6 +11,8 @@ const getFiltersFromUrl = (url: URL): SearchFilters => ({
   category: url.searchParams.get('category') ?? undefined,
   limit: url.searchParams.get('limit') ? Number(url.searchParams.get('limit')) : undefined,
   offset: url.searchParams.get('offset') ? Number(url.searchParams.get('offset')) : undefined,
+  includeSynthetic: url.searchParams.get('includeSynthetic') === 'true',
+  includeWeak: url.searchParams.get('includeWeak') === 'true',
 });
 
 export const searchRoute = (request: Request) => {
